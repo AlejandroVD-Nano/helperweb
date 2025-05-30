@@ -1,7 +1,7 @@
 // src/hooks/useAuthWithRole.ts
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore'; 
 
 // Interface para el estado que retorna el hook
 interface AuthState {

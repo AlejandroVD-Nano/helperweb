@@ -58,104 +58,128 @@ export default function HomeScreen() {
   // Ahora renderizamos los botones condicionalmente según el userRole
 
   return (
+    
     <View style={styles.container}>
-      {/* El título de bienvenida siempre se muestra si el usuario está logueado */}
-    <Text style={styles.title}>Bienvenido a la aplicación</Text>
+  {/* Título de bienvenida */}
+  <Text style={styles.title} >Bienvenido Administrador</Text>
 
-      {/* 1. Botón Cerrar Sesión: Visible para CUALQUIER usuario logueado */}
-      {/* Ya verificamos que hay un currentUser arriba, así que este se mostrará si isLoading es false */}
-      <Button
-        title="Cerrar sesión"
-        onPress={async () => {
-          console.log("Iniciando proceso de cierre de sesión...");
-          // *** IMPORTANTE: Reemplaza este console.log con tu lógica real de sign out de Firebase Auth ***
-          try {
-            // Ejemplo (descomenta si usas la importación de signOut):
-            // await signOut(auth);
-            console.log("Sesión cerrada exitosamente.");
-            // Navega a la pantalla de inicio de sesión después de cerrar la sesión
-            navigation.navigate('Login');
-          } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-            // Opcional: Mostrar un mensaje de error al usuario
-          }
-        }}
-      />
-
-      {/* 2. Botón Agendar Cita Psicológica: Visible para ALUMNOS y PSICOLOGAS */}
-      {/* Usamos el operador && para mostrar el botón solo si la condición del rol es verdadera */}
-      {(userRole === 'alumno' || userRole === 'psicologa' || userRole === 'admin') && (
+  {/* Contenedor principal para los botones (2 columnas) */}
+  <View style={styles.buttonsContainer}>
+    {/* 1. Botón Agendar Cita Psicológica */}
+    {(userRole === 'alumno' || userRole === 'psicologa' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title="Agendar Cita Psicológica"
           onPress={() => navigation.navigate('CitasPsicologicas')}
         />
-        
-      )}
+      </View>
+    )}
 
-      {(userRole === 'psicologa' || userRole === 'admin') && (
+    {/* 2. Botón Citas (Psicóloga) */}
+    {(userRole === 'psicologa' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title="Citas"
           onPress={() => navigation.navigate('VistaPsicologo')}
         />
-        
-      )}
-       {(userRole === 'psicologa' || userRole === 'admin') && (
+      </View>
+    )}
+
+    {/* 3. Botón VistaPsicologo */}
+    {(userRole === 'psicologa' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title="VistaPsicologo"
           onPress={() => navigation.navigate('VistaPsicologo')}
         />
-      )}
+      </View>
+    )}
 
-      {(userRole === 'maestro' || userRole === 'admin') && (
+    {/* 4. Botón VistaMaestro */}
+    {(userRole === 'maestro' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title="VistaMaestro"
           onPress={() => navigation.navigate('VistaMaestro')}
         />
-      )}
+      </View>
+    )}
 
-
-      {/* 3. Botón Buscar asesorías: Visible solo para ALUMNOS */}
-      {/* Usamos el operador && para mostrar el botón solo si el rol es 'alumno' */}
-      {(userRole === 'alumno' || userRole === 'admin') && (
+    {/* 5. Botón Buscar asesorías */}
+    {(userRole === 'alumno' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title="Buscar asesorías"
           onPress={() => navigation.navigate('Asesorias')}
         />
-      )}
+      </View>
+    )}
 
-      {/* 4. Botón Alumnos: Visible solo para ADMINISTRADORES */}
-      {/* Usamos el operador && para mostrar el botón solo si el rol es 'admin' */}
-      {(userRole === 'alumno' || userRole === 'admin') && (
+    {/* 6. Botón Alumnos */}
+    {(userRole === 'alumno' || userRole === 'admin') && (
+      <View style={styles.buttonWrapper}>
         <Button
           title='Alumnos'
           onPress={() => navigation.navigate('Alumnos')}
         />
-      )}
+      </View>
+    )}
+  </View>
 
-       {/* Opcional: Mostrar el rol actual del usuario para depuración */}
-       {/* <Text style={{marginTop: 20}}>Tu rol es: {userRole || 'No asignado'}</Text> */}
-
-    </View>
+  {/* Contenedor para el botón de cerrar sesión (centrado y ancho completo) */}
+  <View style={styles.logoutContainer}>
+    <Button
+      title="Cerrar sesión"
+      onPress={async () => {
+        console.log("Iniciando proceso de cierre de sesión...");
+        try {
+          // await signOut(auth);
+          console.log("Sesión cerrada exitosamente.");
+          navigation.navigate('Login');
+        } catch (error) {
+          console.error("Error al cerrar sesión:", error);
+        }
+      }}
+    />
+  </View>
+</View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 20, // Añadido padding para no pegar al borde
+    backgroundColor: '#8FB4D5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 35,
     marginBottom: 20,
-    fontWeight: 'bold', // Hacer el título más notorio
+    fontWeight: 'bold', // Hacer el título más notorio,
+    textAlign: 'center',
   },
-  // Puedes añadir estilos específicos para los botones si necesitas
-  button: {
-      marginVertical: 10, // Espacio vertical entre botones
-  }
-  // Nota: StyleSheet.create no aplica estilos directamente a Button.
-  // Si necesitas más control sobre el estilo de los botones, considera usar TouchableOpacity
-  // con Text dentro y aplicar estilos al TouchableOpacity y al Text.
+  buttonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 100,
+  },
+  buttonWrapper: {
+    width: '48%', // Esto crea 2 columnas con un pequeño espacio entre ellas
+    marginBottom: 10,
+    borderRadius: 70,
+    shadowColor: '#003845',
+       shadowRadius: 20,
+  },
+  logoutContainer: {
+    borderRadius: 70,
+    width: '60%',
+    marginTop: 20,
+    alignSelf: 'center',
+    // Si quieres que el botón de cerrar sesión no sea tan ancho:
+    // width: '60%',
+    shadowColor: '#003845',
+       shadowRadius: 20,
+  },
 });

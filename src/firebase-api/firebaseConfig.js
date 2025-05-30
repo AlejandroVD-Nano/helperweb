@@ -6,7 +6,7 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 // Tu configuración web de Firebase
-// La copio directamente de lo que me proporcionaste
+// La copio directamente de lo que me proporcionaste 
 const firebaseConfig = {
   apiKey: "AIzaSyBAfq6ajjb_0muRTvnFY40zBepqsBC8o3A",
   authDomain: "helperweb-52035.firebaseapp.com",

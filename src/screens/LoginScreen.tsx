@@ -17,7 +17,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!controlNumber || !password) {
-      Alert.alert('Error', 'Por favor ingresa número de control y contraseña');
+      alert('Error Por favor ingresa número de control y contraseña');
       return;
     }
 
@@ -26,7 +26,7 @@ export default function LoginScreen() {
 
       const user = userCredential.user;
       console.log('Usuario inició sesión exitosamente:', user.email);
-      Alert.alert('Éxito', '¡Inicio de sesión exitoso!');
+      Alert.alert('Éxito ¡Inicio de sesión exitoso!');
       navigation.navigate('Redireccion')
       
     } catch (error) {
@@ -58,7 +58,7 @@ export default function LoginScreen() {
       }
 
       // Muestra la alerta con el mensaje de error (sea FirebaseError o desconocido)
-      Alert.alert('Error de inicio de sesión', userErrorMessage);
+      alert('Error de inicio de sesión credenciales invalidas');
     }
   };
 

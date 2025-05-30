@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
      width: '200%',
        borderRadius: 10,  
        shadowColor: '#003845',
-       shadowRadius: 20
+       shadowRadius: 20,
   },
   container: {
     flex: 1,
