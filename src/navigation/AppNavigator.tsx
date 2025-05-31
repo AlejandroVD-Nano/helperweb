@@ -11,6 +11,7 @@ import VistaPsicologoScreen from '../screens/VistaPsicologoScreen';
 import ProfesoresScreen from '../screens/ProfesoresScreen';
 import VistaMaestroScreen from '../screens/VistaMaestroScreen';
 import React from 'react';
+import CitasMaestroScreen from '../screens/CitasMaestroScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -32,6 +33,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Profesores" component={ProfesoresScreen} />
         <Stack.Screen name="VistaPsicologo" component={VistaPsicologoScreen} />
         <Stack.Screen name="VistaMaestro" component={VistaMaestroScreen} />
+        <Stack.Screen name="CitaMaestro" component={CitasMaestroScreen} />
 
         <Stack.Screen name="Redireccion" component={RedirectScreen} options={{ headerShown: false }} />
       </Stack.Navigator>

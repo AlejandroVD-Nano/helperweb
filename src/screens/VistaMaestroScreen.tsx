@@ -8,7 +8,13 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
+  ScrollView,
+  Image,
+  Pressable,
+  Platform
 } from 'react-native';
+import { Calendar } from 'react-native-calendars';
+import { Picker } from '@react-native-picker/picker';
 
 // Definición de tipos
 type Cita = {
@@ -44,7 +50,7 @@ const citasIniciales: Cita[] = [
     numeroControl: '20210001',
     carrera: 'Ingeniería',
     fecha: '2023-11-15',
-    hora: '10:00',
+    hora: '10:00 - 11:00',
     motivo: 'Ayuda Examen',
     estado: 'pendiente',
   },
@@ -54,7 +60,7 @@ const citasIniciales: Cita[] = [
     numeroControl: '20210002',
     carrera: 'Medicina',
     fecha: '2023-11-16',
-    hora: '11:30',
+    hora: '11:00 - 12:00',
     motivo: 'Asesorias proyecto',
     estado: 'confirmada',
   },
@@ -64,29 +70,25 @@ const citasIniciales: Cita[] = [
     numeroControl: '20210003',
     carrera: 'Derecho',
     fecha: '2023-11-17',
-    hora: '09:00',
-    motivo: '',
+    hora: '09:00 - 10:00',
+    motivo: 'Dudas sobre el proyecto final',
     estado: 'realizada',
   },
 ];
 
 const VistaMaestroScreen = () => {
-  // Estados
+  // Estados para las citas
   const [citas, setCitas] = useState<Cita[]>(citasIniciales);
-  const [modalVisible, setModalVisible] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [citaSeleccionada, setCitaSeleccionada] = useState<Cita | null>(null);
-  const [nuevaFecha, setNuevaFecha] = useState('');
-  const [nuevaHora, setNuevaHora] = useState('');
   
-  const [nuevaCita, setNuevaCita] = useState<Omit<Cita, 'id' | 'estado'>>({
-    alumno: '',
-    numeroControl: '',
-    carrera: '',
-    fecha: '',
-    hora: '',
-    motivo: '',
-  });
+  // Estados para el modal de nueva cita
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [motivo, setMotivo] = useState('');
+  const [alumno, setAlumno] = useState('');
+  const [numeroControl, setNumeroControl] = useState('');
+  const [carrera, setCarrera] = useState('');
 
   // Funciones para manejar citas
   const confirmarCita = (id: string) => {
@@ -105,31 +107,34 @@ const VistaMaestroScreen = () => {
   };
 
   const agregarCita = () => {
-    if (!nuevaCita.alumno || !nuevaCita.fecha || !nuevaCita.hora) {
+    if (!selectedDate || !selectedTime || !motivo || !alumno || !numeroControl || !carrera) {
       Alert.alert('Error', 'Por favor complete todos los campos requeridos');
       return;
     }
 
-    const nuevaCitaCompleta: Cita = {
-      ...nuevaCita,
+    const nuevaCita: Cita = {
       id: Math.random().toString(36).substring(7),
+      alumno,
+      numeroControl,
+      carrera,
+      fecha: selectedDate,
+      hora: selectedTime,
+      motivo,
       estado: 'pendiente',
     };
 
-    setCitas([...citas, nuevaCitaCompleta]);
+    setCitas([...citas, nuevaCita]);
     setModalVisible(false);
-    setNuevaCita({
-      alumno: '',
-      numeroControl: '',
-      carrera: '',
-      fecha: '',
-      hora: '',
-      motivo: '',
-    });
+    setSelectedDate('');
+    setSelectedTime('');
+    setMotivo('');
+    setAlumno('');
+    setNumeroControl('');
+    setCarrera('');
     Alert.alert('Éxito', 'Nueva cita agregada correctamente');
   };
 
-  // Componente de tarjeta de cita normall
+  // Componente de tarjeta de cita
   const CitaCard = ({ cita }: { cita: Cita }) => (
     <View style={[
       styles.card,
@@ -225,72 +230,110 @@ const VistaMaestroScreen = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Agregar Nueva Cita</Text>
+          <ScrollView style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Agendar Nueva Cita</Text>
             
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre del alumno"
-              value={nuevaCita.alumno}
-              onChangeText={text => setNuevaCita({...nuevaCita, alumno: text})}
+            <Image 
+              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3132/3132693.png' }}
+              style={styles.image}
             />
-            
+
+            <Text style={styles.label}>Nombre del alumno:</Text>
             <TextInput
+              placeholder="Nombre completo"
+              value={alumno}
+              onChangeText={setAlumno}
               style={styles.input}
+            />
+
+            <Text style={styles.label}>Número de control:</Text>
+            <TextInput
               placeholder="Número de control"
-              value={nuevaCita.numeroControl}
-              onChangeText={text => setNuevaCita({...nuevaCita, numeroControl: text})}
-            />
-            
-            <TextInput
+              value={numeroControl}
+              onChangeText={setNumeroControl}
               style={styles.input}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Carrera:</Text>
+            <TextInput
               placeholder="Carrera"
-              value={nuevaCita.carrera}
-              onChangeText={text => setNuevaCita({...nuevaCita, carrera: text})}
-            />
-            
-            <TextInput
+              value={carrera}
+              onChangeText={setCarrera}
               style={styles.input}
-              placeholder="Fecha (YYYY-MM-DD)"
-              value={nuevaCita.fecha}
-              onChangeText={text => setNuevaCita({...nuevaCita, fecha: text})}
             />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Hora (HH:MM)"
-              value={nuevaCita.hora}
-              onChangeText={text => setNuevaCita({...nuevaCita, hora: text})}
+
+            <Text style={styles.label}>Fecha de la cita:</Text>
+            <Calendar
+              onDayPress={(day: { dateString: React.SetStateAction<string>; }) => setSelectedDate(day.dateString)}
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: '#B8DFD8' },
+              }}
+              style={styles.calendar}
+              theme={{
+                selectedDayBackgroundColor: '#B8DFD8',
+                todayTextColor: '#3A6351',
+                arrowColor: '#3A6351',
+              }}
             />
-            
+
+            <View style={{ marginTop: 20, marginBottom: 15 }}>
+              <Text style={styles.selectedDateText}>
+                {selectedDate ? `Fecha seleccionada: ${selectedDate}` : 'Selecciona una fecha'}
+              </Text>
+            </View>
+
+            <Text style={styles.label}>Hora de la cita:</Text>
+            <Picker
+              selectedValue={selectedTime}
+              onValueChange={(itemValue) => setSelectedTime(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Selecciona una hora" value="" />
+              <Picker.Item label="09:00 - 10:00" value="09:00 - 10:00" />
+              <Picker.Item label="10:00 - 11:00" value="10:00 - 11:00" />
+              <Picker.Item label="11:00 - 12:00" value="11:00 - 12:00" />
+              <Picker.Item label="12:00 - 13:00" value="12:00 - 13:00" />
+              <Picker.Item label="13:00 - 14:00" value="13:00 - 14:00" />
+              <Picker.Item label="14:00 - 15:00" value="14:00 - 15:00" />
+              <Picker.Item label="15:00 - 16:00" value="15:00 - 16:00" />
+              <Picker.Item label="16:00 - 17:00" value="16:00 - 17:00" />
+            </Picker>
+
+            <Text style={styles.selectedTimeText}>
+              {selectedTime ? `Hora seleccionada: ${selectedTime}` : 'Selecciona una hora'}
+            </Text>
+
+            <Text style={styles.label}>Motivo de la cita:</Text>
             <TextInput
-              style={[styles.input, {height: 80}]}
-              placeholder="Motivo de la consulta"
+              placeholder="Escribe el motivo de la cita"
+              value={motivo}
+              onChangeText={setMotivo}
+              style={[styles.input, styles.multilineInput]}
               multiline
-              value={nuevaCita.motivo}
-              onChangeText={text => setNuevaCita({...nuevaCita, motivo: text})}
+              numberOfLines={4}
             />
             
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
+              <Pressable 
                 style={[styles.modalButton, styles.cancelModalButton]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+              </Pressable>
               
-              <TouchableOpacity 
+              <Pressable 
                 style={[styles.modalButton, styles.addModalButton]}
                 onPress={agregarCita}
               >
                 <Text style={styles.modalButtonText}>Agregar</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
 
-      {/* Modal de perfil del psicólogo */}
+      {/* Modal de perfil del maestro */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -321,25 +364,25 @@ const VistaMaestroScreen = () => {
   );
 };
 
-// Estilos con colores por si quiern cambiarlos
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F7F0', // Beige muy claro
+    backgroundColor: '#F9F7F0',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#B8DFD8', // Verde pastel
+    backgroundColor: '#B8DFD8',
     borderBottomWidth: 1,
     borderBottomColor: '#7CBCB5',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#3A6351', // Verde oscuro suave
+    color: '#3A6351',
   },
   profileButton: {
     backgroundColor: '#3A6351',
@@ -367,23 +410,19 @@ const styles = StyleSheet.create({
   },
   cardPendiente: {
     borderLeftWidth: 5,
-    borderLeftColor: '#FFD3B6', // Naranja pastel
+    borderLeftColor: '#FFD3B6',
   },
   cardConfirmada: {
     borderLeftWidth: 5,
-    borderLeftColor: '#A2D2FF', // Azul pastel
+    borderLeftColor: '#A2D2FF',
   },
   cardRealizada: {
     borderLeftWidth: 5,
-    borderLeftColor: '#CAFFBF', // Verde pastel
+    borderLeftColor: '#CAFFBF',
   },
   cardCancelada: {
     borderLeftWidth: 5,
-    borderLeftColor: '#FFADAD', // Rojo pastel
-  },
-  cardReagendada: {
-    borderLeftWidth: 5,
-    borderLeftColor: '#D8B5FF', // Lila pastel
+    borderLeftColor: '#FFADAD',
   },
   cardTitle: {
     fontSize: 18,
@@ -403,19 +442,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   statusPendiente: {
-    color: '#FF9A76', // Naranja pastel
+    color: '#FF9A76',
   },
   statusConfirmada: {
-    color: '#7FB3D5', // Azul pastel
+    color: '#7FB3D5',
   },
   statusRealizada: {
-    color: '#88C9A1', // Verde pastel
+    color: '#88C9A1',
   },
   statusCancelada: {
-    color: '#FF6B6B', // Rojo pastel
-  },
-  statusReagendada: {
-    color: '#B693F8', // Lila pastel
+    color: '#FF6B6B',
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -437,16 +473,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   confirmButton: {
-    backgroundColor: '#7FB3D5', // Azul pastel
+    backgroundColor: '#7FB3D5',
   },
   cancelButton: {
-    backgroundColor: '#FF6B6B', // Rojo pastel
+    backgroundColor: '#FF6B6B',
   },
   completeButton: {
-    backgroundColor: '#88C9A1', // Verde pastel
-  },
-  reagendarButton: {
-    backgroundColor: '#B693F8', // Lila pastel
+    backgroundColor: '#88C9A1',
   },
   addButton: {
     backgroundColor: '#B8DFD8',
@@ -483,7 +516,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 10,
     padding: 20,
-    maxHeight: '80%',
+    maxHeight: '90%',
   },
   modalTitle: {
     fontSize: 18,
@@ -500,6 +533,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
+  multilineInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -513,10 +550,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   addModalButton: {
-    backgroundColor: '#88C9A1', // Verde pastel
+    backgroundColor: '#88C9A1',
   },
   cancelModalButton: {
-    backgroundColor: '#FF6B6B', // Rojo pastel
+    backgroundColor: '#FF6B6B',
   },
   closeModalButton: {
     backgroundColor: '#3A6351',
@@ -532,6 +569,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
     color: '#3A6351',
+  },
+  image: {
+    width: 60,
+    height: 60,
+    alignSelf: 'center',
+    marginBottom: 15,
+  },
+  label: {
+    fontWeight: 'bold',
+    color: '#3A6351',
+    marginBottom: 5,
+  },
+  calendar: {
+    borderRadius: 10,
+    marginBottom: 5,
+    height: 350,
+  },
+  selectedDateText: {
+    fontSize: 16,
+    color: '#3A6351',
+    textAlign: 'center',
+  },
+  selectedTimeText: {
+    fontSize: 14,
+    color: '#3A6351',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  picker: {
+    height: Platform.OS === 'ios' ? 160 : 50,
+    width: '100%',
+    marginBottom: 10,
+  },
+  dateAndMotivoBox: {
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 15,
   },
 });
 
