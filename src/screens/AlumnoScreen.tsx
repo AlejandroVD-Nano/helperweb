@@ -58,6 +58,9 @@ export default function AlumnoScreen() {
   <Pressable style={styles.button} onPress={() => navigation.navigate('CitasPsicologicas')}>
     <Text style={styles.buttonText}>Cita Psicológica</Text>
   </Pressable> 
+  <Pressable style={styles.button} onPress={()=> navigation.navigate('')} >
+    <Text style={styles.buttonText}>Cita asesoria</Text>
+  </Pressable>
 </View>
 
     </View>

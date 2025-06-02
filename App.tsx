@@ -16,7 +16,7 @@ import RedirectionScreen from './src/screens/RedireccionScreen';
 import VistaPsicologoScreen from './src/screens/VistaPsicologoScreen';
 import ProfesoresScreen from './src/screens/ProfesoresScreen'; 
 import VistaMaestroScreen from './src/screens/VistaMaestroScreen';
-import CitasMaestro from './src/screens/CitasMaestroScreen';
+import CitaMaestro from './src/screens/CitasMaestroScreen';
 // Pantallas de Documentación
 import CalculoDiferencialScreen from './src/screens/Documentacion/CalculoDiferencalScreen';
 import FundamentosDeInvestigacionScreen from './src/screens/Documentacion/FundamentosDeInvestigacionScreen';
@@ -66,8 +66,8 @@ export default function App() {
               options={{ title: 'Agendar Cita Psicológica' }}
             />
             <Stack.Screen 
-              name="CitasMaestro" 
-              component={CitasMaestro}
+              name="CitaMaestro" 
+              component={CitaMaestro}
               options={{ title: 'Agendar Asesoria' }}
             />
             <Stack.Screen 
