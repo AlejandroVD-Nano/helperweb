@@ -3,9 +3,12 @@ import { Calendar } from 'react-native-calendars';
 import { SetStateAction, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import { useCitas } from '../screens/citascontexto';
 
 export default function CitasMaestroScreen() {
   const navigation = useNavigation();
+  const { agregarCitaMaestro } = useCitas();
+  
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [motivo, setMotivo] = useState('');
@@ -20,8 +23,7 @@ export default function CitasMaestroScreen() {
       return;
     }
     
-    // Aquí iría la lógica para guardar la cita
-    const nuevaCita = {
+    agregarCitaMaestro({
       alumno,
       numeroControl,
       carrera,
@@ -29,12 +31,11 @@ export default function CitasMaestroScreen() {
       fecha: selectedDate,
       hora: selectedTime,
       motivo,
-      estado: 'pendiente'
-    };
+    });
     
-    alert(`Cita agendada con ${maestro} para el ${selectedDate} a las ${selectedTime}\nAlumno: ${alumno}\nNo. Control: ${numeroControl}\nCarrera: ${carrera}`);
+    alert(`Cita agendada con ${maestro} para el ${selectedDate} a las ${selectedTime}`);
     
-    // Limpiar campos después de agendar
+    // Limpiar campos
     setSelectedDate('');
     setSelectedTime('');
     setMotivo('');
@@ -95,7 +96,7 @@ export default function CitasMaestroScreen() {
 
         <Text style={styles.label}>Fecha de la cita:</Text>
         <Calendar
-          onDayPress={(day: { dateString: SetStateAction<string>; }) => setSelectedDate(day.dateString)}
+          onDayPress={(day: { dateString: SetStateAction<string> }) => setSelectedDate(day.dateString)}
           markedDates={{
             [selectedDate]: { selected: true, selectedColor: '#3A6351' },
           }}
@@ -149,7 +150,6 @@ export default function CitasMaestroScreen() {
         <Text style={styles.buttonText}>Guardar Cita</Text>
       </Pressable>
 
-      {/* Botón para redirigir a citas psicológicas */}
       <Pressable 
         style={[styles.button, styles.psicoButton]} 
         onPress={() => navigation.navigate('CitasPsicologicas')}

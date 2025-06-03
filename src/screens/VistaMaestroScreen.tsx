@@ -15,18 +15,8 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Picker } from '@react-native-picker/picker';
-
-// Definición de tipos
-type Cita = {
-  id: string;
-  alumno: string;
-  numeroControl: string;
-  carrera: string;
-  fecha: string;
-  hora: string;
-  motivo: string;
-  estado: 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
-};
+import { useCitas } from '../screens/citascontexto';
+import { Cita } from '../components/CitasContext';
 
 type Maestro = {
   nombre: string;
@@ -35,7 +25,6 @@ type Maestro = {
   telefono: string;
 };
 
-// Datos iniciales
 const maestroData: Maestro = {
   nombre: 'Ing. David Saenz',
   especialidad: 'Desarrollo Web',
@@ -43,45 +32,9 @@ const maestroData: Maestro = {
   telefono: '55 1234 5678',
 };
 
-const citasIniciales: Cita[] = [
-  {
-    id: '1',
-    alumno: 'Juan Pérez',
-    numeroControl: '20210001',
-    carrera: 'Ingeniería',
-    fecha: '2023-11-15',
-    hora: '10:00 - 11:00',
-    motivo: 'Ayuda Examen',
-    estado: 'pendiente',
-  },
-  {
-    id: '2',
-    alumno: 'María López',
-    numeroControl: '20210002',
-    carrera: 'Medicina',
-    fecha: '2023-11-16',
-    hora: '11:00 - 12:00',
-    motivo: 'Asesorias proyecto',
-    estado: 'confirmada',
-  },
-  {
-    id: '3',
-    alumno: 'Carlos Sánchez',
-    numeroControl: '20210003',
-    carrera: 'Derecho',
-    fecha: '2023-11-17',
-    hora: '09:00 - 10:00',
-    motivo: 'Dudas sobre el proyecto final',
-    estado: 'realizada',
-  },
-];
-
 const VistaMaestroScreen = () => {
-  // Estados para las citas
-  const [citas, setCitas] = useState<Cita[]>(citasIniciales);
+  const { citas, confirmarCita, cancelarCita, marcarRealizada, agregarCitaMaestro } = useCitas();
   const [showProfile, setShowProfile] = useState(false);
-  
-  // Estados para el modal de nueva cita
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -90,40 +43,25 @@ const VistaMaestroScreen = () => {
   const [numeroControl, setNumeroControl] = useState('');
   const [carrera, setCarrera] = useState('');
 
-  // Funciones para manejar citas
-  const confirmarCita = (id: string) => {
-    setCitas(citas.map(c => c.id === id ? {...c, estado: 'confirmada'} : c));
-    Alert.alert('Cita confirmada', 'La cita ha sido confirmada exitosamente');
-  };
+  // Filtrar solo citas con maestros
+  const citasMaestros = citas.filter((c: { tipo: string; }) => c.tipo === 'maestro');
 
-  const cancelarCita = (id: string) => {
-    setCitas(citas.map(c => c.id === id ? {...c, estado: 'cancelada'} : c));
-    Alert.alert('Cita cancelada', 'La cita ha sido cancelada');
-  };
-
-  const marcarRealizada = (id: string) => {
-    setCitas(citas.map(c => c.id === id ? {...c, estado: 'realizada'} : c));
-    Alert.alert('Cita completada', 'La cita ha sido marcada como realizada');
-  };
-
-  const agregarCita = () => {
+  const handleAgregarCita = () => {
     if (!selectedDate || !selectedTime || !motivo || !alumno || !numeroControl || !carrera) {
       Alert.alert('Error', 'Por favor complete todos los campos requeridos');
       return;
     }
 
-    const nuevaCita: Cita = {
-      id: Math.random().toString(36).substring(7),
+    agregarCitaMaestro({
       alumno,
       numeroControl,
       carrera,
+      maestro: maestroData.nombre, // El maestro actual
       fecha: selectedDate,
       hora: selectedTime,
       motivo,
-      estado: 'pendiente',
-    };
+    });
 
-    setCitas([...citas, nuevaCita]);
     setModalVisible(false);
     setSelectedDate('');
     setSelectedTime('');
@@ -134,7 +72,6 @@ const VistaMaestroScreen = () => {
     Alert.alert('Éxito', 'Nueva cita agregada correctamente');
   };
 
-  // Componente de tarjeta de cita
   const CitaCard = ({ cita }: { cita: Cita }) => (
     <View style={[
       styles.card,
@@ -177,14 +114,12 @@ const VistaMaestroScreen = () => {
         )}
         
         {cita.estado === 'confirmada' && (
-          <>
-            <TouchableOpacity 
-              style={[styles.button, styles.completeButton]}
-              onPress={() => marcarRealizada(cita.id)}
-            >
-              <Text style={styles.buttonText}>Realizada</Text>
-            </TouchableOpacity>
-          </>
+          <TouchableOpacity 
+            style={[styles.button, styles.completeButton]}
+            onPress={() => marcarRealizada(cita.id)}
+          >
+            <Text style={styles.buttonText}>Realizada</Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -192,7 +127,6 @@ const VistaMaestroScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header con botón de perfil */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Citas Programadas</Text>
         <TouchableOpacity 
@@ -203,9 +137,8 @@ const VistaMaestroScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Lista de citas */}
       <FlatList
-        data={citas}
+        data={citasMaestros}
         renderItem={({ item }) => <CitaCard cita={item} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
@@ -214,7 +147,6 @@ const VistaMaestroScreen = () => {
         }
       />
 
-      {/* Botón para agregar nueva cita */}
       <TouchableOpacity 
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
@@ -222,7 +154,6 @@ const VistaMaestroScreen = () => {
         <Text style={styles.addButtonText}>+ Agregar Nueva Cita</Text>
       </TouchableOpacity>
 
-      {/* Modal para agregar nueva cita */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -265,7 +196,7 @@ const VistaMaestroScreen = () => {
 
             <Text style={styles.label}>Fecha de la cita:</Text>
             <Calendar
-              onDayPress={(day: { dateString: React.SetStateAction<string>; }) => setSelectedDate(day.dateString)}
+              onDayPress={(day: { dateString: any; }) => setSelectedDate(day.dateString)}
               markedDates={{
                 [selectedDate]: { selected: true, selectedColor: '#B8DFD8' },
               }}
@@ -324,7 +255,7 @@ const VistaMaestroScreen = () => {
               
               <Pressable 
                 style={[styles.modalButton, styles.addModalButton]}
-                onPress={agregarCita}
+                onPress={handleAgregarCita}
               >
                 <Text style={styles.modalButtonText}>Agregar</Text>
               </Pressable>
@@ -333,7 +264,6 @@ const VistaMaestroScreen = () => {
         </View>
       </Modal>
 
-      {/* Modal de perfil del maestro */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -364,7 +294,6 @@ const VistaMaestroScreen = () => {
   );
 };
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -601,12 +530,6 @@ const styles = StyleSheet.create({
     height: Platform.OS === 'ios' ? 160 : 50,
     width: '100%',
     marginBottom: 10,
-  },
-  dateAndMotivoBox: {
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 15,
   },
 });
 
