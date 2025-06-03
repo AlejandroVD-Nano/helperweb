@@ -75,7 +75,7 @@ export default function HomeScreen() {
       </View>
     )}
 
-    {/* 2. Botón Citas (Psicóloga) */}
+    {/* 2. Botón Citas (Psicóloga)
     {(userRole === 'psicologa' || userRole === 'admin') && (
       <View style={styles.buttonWrapper}>
         <Button
@@ -83,7 +83,7 @@ export default function HomeScreen() {
           onPress={() => navigation.navigate('VistaPsicologo')}
         />
       </View>
-    )}
+    )} */}
 
     {/* 3. Botón VistaPsicologo */}
     {(userRole === 'psicologa' || userRole === 'admin') && (
