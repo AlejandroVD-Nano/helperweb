@@ -257,9 +257,9 @@ type Materia = {
   }}>
         <Text style={styles.buttonText}>Documentación</Text>
         </Pressable>
-        <Pressable style={styles.button2} onPress={() => navigation.navigate('Profesores', { materia: selectedMateria })}>
+        {/* <Pressable style={styles.button2} onPress={() => navigation.navigate('Profesores', { materia: selectedMateria })}>
         <Text style={styles.buttonText}>Asesorías</Text>
-        </Pressable>
+        </Pressable> */}
         </View>
       </View>
     );
